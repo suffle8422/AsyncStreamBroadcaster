@@ -33,9 +33,25 @@ A Swift package providing a thread-safe broadcaster for distributing values to m
 Add the following dependency to your `Package.swift`:
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/yourusername/AsyncStreamBroadcaster.git", from: "1.0.0")
-]
+import PackageDescription
+
+let package = Package(
+    name: "SomeProduct",
+    products: [
+        .library(name: "SomeProduct", targets: ["SomeProduct"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/yourusername/AsyncStreamBroadcaster.git", from: "1.0.0")
+    ],
+    targets: [
+        .target(
+            name: "SomeProduct",
+            dependencies: [
+                .product(name: "AsyncStreamBroadcaster", package: "AsyncStreamBroadcaster")
+            ]
+        )
+    ]
+)
 ```
 
 Or add it through Xcode:
