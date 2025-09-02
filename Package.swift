@@ -26,7 +26,6 @@ package.targets = [
     )
 ]
 
-
 private extension String {
     static let targetName = "AsyncStreamBroadcaster"
     static var testTargetName: String { "\(targetName)Tests" }
