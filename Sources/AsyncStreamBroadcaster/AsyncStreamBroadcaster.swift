@@ -61,23 +61,21 @@ public struct AsyncStreamBroadcaster<Element: Sendable>: Sendable {
         }
         
         func broadcast(_ value: Element) {
-            let currentContinuations = lock.withLock {
-                Array(continuations.values)
-            }
+            let currentContinuations = lock.withLock { continuations }
             
-            for continuation in currentContinuations {
+            for continuation in currentContinuations.values {
                 continuation.yield(value)
             }
         }
         
         func finish() {
             let currentContinuations = lock.withLock {
-                let continuations = Array(self.continuations.values)
+                let continuations = self.continuations
                 self.continuations.removeAll()
                 return continuations
             }
             
-            for continuation in currentContinuations {
+            for continuation in currentContinuations.values {
                 continuation.finish()
             }
         }
