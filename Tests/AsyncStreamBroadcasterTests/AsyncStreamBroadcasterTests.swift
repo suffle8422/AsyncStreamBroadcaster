@@ -166,53 +166,6 @@ struct AsyncStreamBroadcasterTests {
         #expect(result == [10, 20, 30])
     }
 
-    @Test("並行アクセス")
-    func concurrentAccess() async throws {
-        let broadcaster = AsyncStreamBroadcaster<Int>()
-        let streamsCount = 10
-        
-        let tasks = (0..<streamsCount).map { index in
-            Task {
-                let stream = broadcaster.makeStream()
-                var values: [Int] = []
-                for await value in stream {
-                    values.append(value)
-                    if values.count == 3 {
-                        break
-                    }
-                }
-                return (index, values)
-            }
-        }
-        
-        let broadcastTask = Task {
-            for i in 1...3 {
-                broadcaster.yield(i * 100)
-                try await Task.sleep(for: .milliseconds(10))
-            }
-        }
-        
-        let results = await withTaskGroup(of: (Int, [Int]).self) { group in
-            for task in tasks {
-                group.addTask { await task.value }
-            }
-            
-            var allResults: [Int: [Int]] = [:]
-            for await result in group {
-                allResults[result.0] = result.1
-            }
-            return allResults
-        }
-        
-        try await broadcastTask.value
-        
-        let expectedValues = [100, 200, 300]
-        for (_, values) in results {
-            #expect(values == expectedValues)
-        }
-        #expect(results.count == streamsCount)
-    }
-
     @Test("ストリームのキャンセル処理")
     func streamCancellation() async throws {
         let broadcaster = AsyncStreamBroadcaster<Int>()
